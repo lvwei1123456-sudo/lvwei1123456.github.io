@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>筛选规则 - 惠每临床试验平台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 头部导航栏 */
+        .header {
+            background-color: #1890ff;
+            color: white;
+            padding: 0 24px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 16px;
+        }
+
+        .header-middle {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            padding: 8px 0;
+            position: relative;
+        }
+
+        .nav-link.active {
+            font-weight: 500;
+        }
+
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: white;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 14px;
+        }
+
+        .user-dropdown {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+        }
+
+        .bell-icon {
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        /* 项目信息栏 */
+        .project-bar {
+            background-color: #fafafa;
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .back-button {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: rgba(0,0,0,0.65);
+            text-decoration: none;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .back-button:hover {
+            color: #1890ff;
+        }
+
+        .project-info {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 14px;
+            color: rgba(0,0,0,0.85);
+        }
+
+        /* 主内容区 */
+        .main-content {
+            flex: 1;
+            background: white;
+            margin: 16px;
+            border-radius: 4px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 筛选和搜索区域 */
+        .filter-section {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-item label {
+            font-size: 14px;
+            color: rgba(0,0,0,0.85);
+            white-space: nowrap;
+        }
+
+        .filter-select {
+            padding: 4px 11px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            height: 32px;
+            width: 120px;
+            background: white;
+        }
+
+        .search-box {
+            flex: 1;
+            position: relative;
+            max-width: 300px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 4px 11px 4px 32px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            height: 32px;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(0,0,0,0.45);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .btn {
+            padding: 4px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            height: 32px;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background-color: #1890ff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #40a9ff;
+        }
+
+        .btn-orange {
+            background-color: #ff7a00;
+            color: white;
+        }
+
+        .btn-orange:hover {
+            background-color: #ff9500;
+        }
+
+        /* 表格区域 */
+        .table-container {
+            flex: 1;
+            overflow: auto;
+            margin-top: 16px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background-color: #fafafa;
+        }
+
+        th {
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 500;
+            font-size: 14px;
+            color: rgba(0,0,0,0.85);
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        tbody tr:hover {
+            background-color: #fafafa;
+        }
+
+        .table-input {
+            width: 100%;
+            padding: 4px 11px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            height: 32px;
+        }
+
+        .table-input:focus {
+            outline: none;
+            border-color: #40a9ff;
+            box-shadow: 0 0 0 2px rgba(24,144,255,0.2);
+        }
+
+        .type-badge {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            border: none;
+            height: 24px;
+        }
+
+        .type-include {
+            background-color: #52c41a;
+            color: white;
+        }
+
+        .type-exclude {
+            background-color: #ff4d4f;
+            color: white;
+        }
+
+        .level-badge {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            border: none;
+            height: 24px;
+        }
+
+        .level-refined {
+            background-color: #fff7e6;
+            color: #d46b08;
+            border: 1px solid #ffd591;
+        }
+
+        .level-rough {
+            background-color: #e6f7ff;
+            color: #1890ff;
+            border: 1px solid #91d5ff;
+        }
+
+        .level-initial {
+            background-color: #e6f7ff;
+            color: #1890ff;
+            border: 1px solid #91d5ff;
+        }
+
+        .drag-handle {
+            cursor: move;
+            color: rgba(0,0,0,0.45);
+            font-size: 16px;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+        }
+
+        .data-source-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .data-source-badge {
+            background-color: #e6f7ff;
+            color: #1890ff;
+            border: 1px solid #91d5ff;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            height: 24px;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .data-source-badge.with-count {
+            position: relative;
+        }
+
+        .data-source-count {
+            background-color: #52c41a;
+            color: white;
+            font-size: 10px;
+            padding: 1px 4px;
+            border-radius: 2px;
+            margin-left: 4px;
+        }
+
+        .action-buttons-cell {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-add-row {
+            background-color: #52c41a;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn-delete {
+            background: none;
+            border: none;
+            color: rgba(0,0,0,0.45);
+            cursor: pointer;
+            font-size: 16px;
+            padding: 4px;
+        }
+
+        .btn-delete:hover {
+            color: #ff4d4f;
+        }
+
+        /* 底部确认按钮 */
+        .footer-actions {
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            padding: 16px 24px;
+            background: white;
+            border-top: 1px solid #f0f0f0;
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+        }
+
+        .btn-confirm {
+            background-color: #1890ff;
+            color: white;
+            border: none;
+            padding: 8px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            height: 40px;
+        }
+
+        .btn-confirm:hover {
+            background-color: #40a9ff;
+        }
+
+        /* 为底部按钮留出空间 */
+        .main-content {
+            padding-bottom: 80px;
+        }
+
+        /* 上传文件模态框 */
+        .upload-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.45);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .upload-modal-overlay.show {
+            display: flex;
+        }
+
+        .upload-modal {
+            background: white;
+            border-radius: 4px;
+            width: 600px;
+            max-width: 90vw;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .upload-modal-tabs {
+            display: flex;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .upload-tab {
+            flex: 1;
+            padding: 12px 24px;
+            text-align: center;
+            font-size: 14px;
+            color: rgba(0,0,0,0.65);
+            background: white;
+            border: none;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+
+        .upload-tab.active {
+            color: #1890ff;
+            background: white;
+            border-bottom-color: #1890ff;
+            font-weight: 500;
+        }
+
+        .upload-modal-body {
+            padding: 40px 24px;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .upload-area {
+            width: 100%;
+            border: 2px dashed #d9d9d9;
+            border-radius: 4px;
+            padding: 60px 20px;
+            text-align: center;
+            background-color: #fafafa;
+            margin-bottom: 16px;
+        }
+
+        .select-file-btn {
+            padding: 8px 24px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            background: white;
+            color: rgba(0,0,0,0.85);
+            font-size: 14px;
+            cursor: pointer;
+            margin-bottom: 12px;
+        }
+
+        .select-file-btn:hover {
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+
+        .support-formats {
+            font-size: 14px;
+            color: rgba(0,0,0,0.45);
+        }
+
+        .upload-modal-footer {
+            padding: 12px 24px;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .btn-cancel {
+            background-color: white;
+            color: rgba(0,0,0,0.65);
+            border: 1px solid #d9d9d9;
+            padding: 4px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            height: 32px;
+        }
+
+        .btn-cancel:hover {
+            color: #1890ff;
+            border-color: #1890ff;
+        }
+
+        .btn-start-recognition {
+            background-color: #1890ff;
+            color: white;
+            border: none;
+            padding: 4px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            height: 32px;
+        }
+
+        .btn-start-recognition:hover {
+            background-color: #40a9ff;
+        }
+    </style>
+</head>
+<body>
+    <!-- 头部导航 -->
+    <div class="header">
+        <div class="header-left">
+            <span>惠每科技 合作医院 | 惠每临床试验平台</span>
+        </div>
+        <div class="header-middle">
+            <a href="#" class="nav-link active">科研项目</a>
+            <a href="#" class="nav-link">综合管理</a>
+            <a href="#" class="nav-link">用户管理</a>
+            <a href="#" class="nav-link">拓展功能</a>
+        </div>
+        <div class="header-right">
+            <span>惠每医生团队</span>
+            <div class="user-dropdown">
+                <span>Hi adminwer</span>
+                <span>▼</span>
+            </div>
+            <span class="bell-icon">🔔</span>
+        </div>
+    </div>
+
+    <!-- 项目信息栏 -->
+    <div class="project-bar">
+        <a href="protocol-view.html" class="back-button">
+            <span>←</span>
+            <span>返回</span>
+        </a>
+        <div class="project-info" id="projectInfo">2025123115054954 --- SLE苏州亚盛</div>
+    </div>
+
+    <!-- 主内容区 -->
+    <div class="main-content">
+        <!-- 筛选和搜索区域 -->
+        <div class="filter-section">
+            <div class="filter-item">
+                <label>条件类型</label>
+                <select class="filter-select">
+                    <option>全部</option>
+                    <option>纳入条件</option>
+                    <option>排除条件</option>
+                </select>
+            </div>
+            <div class="filter-item">
+                <label>条件级别</label>
+                <select class="filter-select">
+                    <option>全部</option>
+                    <option>精筛条件</option>
+                    <option>粗筛条件</option>
+                </select>
+            </div>
+            <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input type="text" class="search-input" placeholder="搜索筛选条件描述.">
+            </div>
+            <div class="action-buttons">
+                <button class="btn btn-orange" onclick="openUploadModal()">上传研究文档或粘贴筛选条件</button>
+                <button class="btn btn-primary">+ 添加筛选条件</button>
+            </div>
+        </div>
+
+        <!-- 表格区域 -->
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 40px;"></th>
+                        <th>序号</th>
+                        <th>筛选条件</th>
+                        <th>条件类型</th>
+                        <th>条件级别</th>
+                        <th>筛选细项</th>
+                        <th>数据源</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="rulesTableBody">
+                    <!-- 初始为空，识别后填充 -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 底部确认按钮 -->
+    <div class="footer-actions">
+        <button class="btn-confirm" onclick="confirmRules()">确认</button>
+    </div>
+
+    <!-- 上传文件模态框 -->
+    <div id="uploadModal" class="upload-modal-overlay" onclick="if(event.target === this) closeUploadModal()">
+        <div class="upload-modal" onclick="event.stopPropagation()">
+            <div class="upload-modal-tabs">
+                <button class="upload-tab active" onclick="switchTab('file')">文件上传</button>
+                <button class="upload-tab" onclick="switchTab('text')">文本粘贴</button>
+            </div>
+            <div class="upload-modal-body">
+                <div class="upload-area">
+                    <button class="select-file-btn" onclick="document.getElementById('fileInput').click()">选择文件</button>
+                    <div class="support-formats">支持格式: PDF、Word.</div>
+                    <input type="file" id="fileInput" style="display: none;" accept=".pdf,.doc,.docx">
+                </div>
+            </div>
+            <div class="upload-modal-footer">
+                <button class="btn-cancel" onclick="closeUploadModal()">取消</button>
+                <button class="btn-start-recognition" onclick="startRecognition()">开始识别</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 从URL参数获取项目信息
+        const urlParams = new URLSearchParams(window.location.search);
+        const projectId = urlParams.get('projectId') || '2025123115054954';
+        const projectName = urlParams.get('projectName') || 'SLE苏州亚盛';
+
+        // 更新项目信息
+        document.getElementById('projectInfo').textContent = `${projectId} --- ${projectName}`;
+
+        // 打开上传模态框
+        function openUploadModal() {
+            document.getElementById('uploadModal').classList.add('show');
+        }
+
+        // 关闭上传模态框
+        function closeUploadModal() {
+            document.getElementById('uploadModal').classList.remove('show');
+        }
+
+        // 切换标签页
+        function switchTab(tab) {
+            const tabs = document.querySelectorAll('.upload-tab');
+            tabs.forEach(t => t.classList.remove('active'));
+            if (tab === 'file') {
+                tabs[0].classList.add('active');
+            } else {
+                tabs[1].classList.add('active');
+            }
+        }
+
+        // 开始识别
+        function startRecognition() {
+            closeUploadModal();
+            
+            // 识别出的数据
+            const recognizedData = [
+                {
+                    id: 1,
+                    condition: '年龄 18-65 岁',
+                    type: 'include',
+                    level: 'initial',
+                    detail: '年龄 >= 18岁 且 年龄 <= 65岁',
+                    dataSources: ['基本信息']
+                },
+                {
+                    id: 2,
+                    condition: '诊断 SLE 超过 6个月',
+                    type: 'include',
+                    level: 'initial',
+                    detail: '当前时间 - SLE诊断时间 > 6个月',
+                    dataSources: ['现病史', '既往史', '确诊诊断', '主诉', '入院诊断', '出院诊断', '出院情况']
+                },
+                {
+                    id: 3,
+                    condition: '妊娠状态 = 未妊娠',
+                    type: 'include',
+                    level: 'refined',
+                    detail: '血清妊娠试验结果为阴性',
+                    dataSources: ['现病史', '体格检查', '出院情况', '入院诊断', '生命体征...']
+                },
+                {
+                    id: 4,
+                    condition: '影像学 (例如胸部CT) 提示肺结核',
+                    type: 'exclude',
+                    level: 'refined',
+                    detail: '影像学检查显示肺结核特征',
+                    dataSources: ['RIS报告']
+                }
+            ];
+
+            // 填充表格
+            fillTableWithData(recognizedData);
+        }
+
+        // 填充表格数据
+        function fillTableWithData(data) {
+            const tbody = document.getElementById('rulesTableBody');
+            tbody.innerHTML = '';
+
+            data.forEach(item => {
+                const row = document.createElement('tr');
+                
+                // 拖拽手柄
+                const dragCell = document.createElement('td');
+                dragCell.innerHTML = '<div class="drag-handle">☰</div>';
+                
+                // 序号
+                const idCell = document.createElement('td');
+                idCell.textContent = item.id;
+                
+                // 筛选条件
+                const conditionCell = document.createElement('td');
+                const conditionInput = document.createElement('input');
+                conditionInput.type = 'text';
+                conditionInput.className = 'table-input';
+                conditionInput.value = item.condition;
+                conditionCell.appendChild(conditionInput);
+                
+                // 条件类型
+                const typeCell = document.createElement('td');
+                const typeBtn = document.createElement('button');
+                typeBtn.className = `type-badge type-${item.type}`;
+                typeBtn.textContent = item.type === 'include' ? '纳入条件 ▼' : '排除条件 ▼';
+                typeCell.appendChild(typeBtn);
+                
+                // 条件级别
+                const levelCell = document.createElement('td');
+                const levelBtn = document.createElement('button');
+                if (item.level === 'initial') {
+                    levelBtn.className = 'level-badge level-initial';
+                    levelBtn.textContent = '初筛条件 ▼';
+                } else {
+                    levelBtn.className = 'level-badge level-refined';
+                    levelBtn.textContent = '精筛条件 ▼';
+                }
+                levelCell.appendChild(levelBtn);
+                
+                // 筛选细项
+                const detailCell = document.createElement('td');
+                const detailInput = document.createElement('input');
+                detailInput.type = 'text';
+                detailInput.className = 'table-input';
+                detailInput.value = item.detail;
+                detailCell.appendChild(detailInput);
+                
+                // 数据源
+                const dataSourceCell = document.createElement('td');
+                const dataSourceContainer = document.createElement('div');
+                dataSourceContainer.className = 'data-source-container';
+                
+                // 显示所有数据源按钮
+                item.dataSources.forEach((source, index) => {
+                    const badge = document.createElement('button');
+                    badge.className = 'data-source-badge';
+                    
+                    // 最后一个按钮显示数量
+                    if (index === item.dataSources.length - 1) {
+                        badge.innerHTML = `${source} <span class="data-source-count">+${item.dataSources.length}</span> ▼`;
+                    } else {
+                        badge.textContent = source;
+                    }
+                    
+                    dataSourceContainer.appendChild(badge);
+                });
+                
+                dataSourceCell.appendChild(dataSourceContainer);
+                
+                // 操作
+                const actionCell = document.createElement('td');
+                const actionDiv = document.createElement('div');
+                actionDiv.className = 'action-buttons-cell';
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'btn-delete';
+                deleteBtn.textContent = '🗑️';
+                deleteBtn.onclick = function() {
+                    row.remove();
+                };
+                actionDiv.appendChild(deleteBtn);
+                actionCell.appendChild(actionDiv);
+                
+                // 组装行
+                row.appendChild(dragCell);
+                row.appendChild(idCell);
+                row.appendChild(conditionCell);
+                row.appendChild(typeCell);
+                row.appendChild(levelCell);
+                row.appendChild(detailCell);
+                row.appendChild(dataSourceCell);
+                row.appendChild(actionCell);
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        // 确认规则并跳转
+        function confirmRules() {
+            const tbody = document.getElementById('rulesTableBody');
+            const rows = tbody.querySelectorAll('tr');
+            const rules = [];
+
+            rows.forEach(row => {
+                const conditionInput = row.querySelector('td:nth-child(3) input');
+                const typeBtn = row.querySelector('td:nth-child(4) button');
+                const condition = conditionInput ? conditionInput.value : '';
+                const type = typeBtn ? (typeBtn.textContent.includes('纳入条件') ? 'include' : 'exclude') : '';
+
+                if (condition && type) {
+                    rules.push({
+                        condition: condition,
+                        type: type
+                    });
+                }
+            });
+
+            // 跳转回试验方案页面，传递数据
+            const urlParams = new URLSearchParams(window.location.search);
+            const projectId = urlParams.get('projectId') || 'TT-00001';
+            const projectName = urlParams.get('projectName') || '临床研究患者标签';
+            
+            // 将规则数据编码为URL参数
+            const rulesParam = encodeURIComponent(JSON.stringify(rules));
+            window.location.href = `protocol-view.html?projectId=${projectId}&projectName=${encodeURIComponent(projectName)}&rules=${rulesParam}`;
+        }
+    </script>
+</body>
+</html>
