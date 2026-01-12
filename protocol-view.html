@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>试验方案 - 惠每临床试验平台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 头部导航栏 */
+        .header {
+            background-color: #1890ff;
+            color: white;
+            padding: 0 24px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 16px;
+        }
+
+        .header-middle {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            padding: 8px 0;
+            position: relative;
+        }
+
+        .nav-link.active {
+            font-weight: 500;
+        }
+
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: white;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 14px;
+        }
+
+        .user-dropdown {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+        }
+
+        .bell-icon {
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        /* 主容器 */
+        .main-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* 左侧边栏 */
+        .sidebar {
+            width: 200px;
+            background: white;
+            border-right: 1px solid #f0f0f0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 16px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .sidebar-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: rgba(0,0,0,0.85);
+        }
+
+        .sidebar-toggle {
+            cursor: pointer;
+            font-size: 16px;
+            color: rgba(0,0,0,0.45);
+        }
+
+        .sidebar-menu {
+            flex: 1;
+            padding: 8px 0;
+        }
+
+        .menu-item {
+            padding: 12px 16px;
+            font-size: 14px;
+            color: rgba(0,0,0,0.65);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .menu-item:hover {
+            background-color: #f5f5f5;
+        }
+
+        .menu-item.active {
+            background-color: #e6f7ff;
+            color: #1890ff;
+            font-weight: 500;
+        }
+
+        /* 主内容区 */
+        .content-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: auto;
+        }
+
+        .content-header {
+            background: white;
+            padding: 16px 24px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .back-button {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: rgba(0,0,0,0.65);
+            text-decoration: none;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .back-button:hover {
+            color: #1890ff;
+        }
+
+        .page-title {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 16px;
+            font-weight: 500;
+            color: rgba(0,0,0,0.85);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 4px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            height: 32px;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background-color: #1890ff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #40a9ff;
+        }
+
+        /* 内容主体 */
+        .content-body {
+            flex: 1;
+            padding: 24px;
+            display: flex;
+            gap: 16px;
+        }
+
+        .criteria-panel {
+            flex: 1;
+            background: white;
+            border-radius: 4px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .panel-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: rgba(0,0,0,0.85);
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .panel-content {
+            font-size: 14px;
+            color: rgba(0,0,0,0.65);
+            line-height: 1.8;
+            min-height: 400px;
+        }
+
+        .panel-content ol,
+        .panel-content ul {
+            padding-left: 24px;
+        }
+
+        .panel-content li {
+            margin-bottom: 8px;
+        }
+
+        /* 水印 */
+        .watermark {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            font-size: 120px;
+            color: rgba(0,0,0,0.03);
+            font-weight: bold;
+            transform: rotate(-45deg);
+            transform-origin: center;
+            pointer-events: none;
+            white-space: nowrap;
+            user-select: none;
+        }
+
+        /* 页脚 */
+        .footer {
+            background: white;
+            padding: 16px;
+            text-align: center;
+            border-top: 1px solid #f0f0f0;
+            color: rgba(0,0,0,0.45);
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 头部导航 -->
+    <div class="header">
+        <div class="header-left">
+            <span>Dr. Mayson</span>
+            <span>惠每临床试验平台</span>
+        </div>
+        <div class="header-middle">
+            <a href="#" class="nav-link active">科研项目</a>
+            <a href="#" class="nav-link">综合管理</a>
+            <a href="#" class="nav-link">用户管理</a>
+            <a href="#" class="nav-link">拓展功能</a>
+        </div>
+        <div class="header-right">
+            <span>惠每医生团队</span>
+            <div class="user-dropdown">
+                <span>Hi adminwer</span>
+                <span>▼</span>
+            </div>
+            <span class="bell-icon">🔔</span>
+        </div>
+    </div>
+
+    <!-- 主容器 -->
+    <div class="main-container">
+        <!-- 左侧边栏 -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <span class="sidebar-title">功能菜单</span>
+                <span class="sidebar-toggle">⇄</span>
+            </div>
+            <div class="sidebar-menu">
+                <div class="menu-item active">入排标准</div>
+                <div class="menu-item">禁用药</div>
+                <div class="menu-item">时间窗</div>
+                <div class="menu-item">试验流程</div>
+            </div>
+        </div>
+
+        <!-- 主内容区 -->
+        <div class="content-area">
+            <div class="content-header">
+                <a href="project-demo.html" class="back-button">
+                    <span>←</span>
+                    <span>返回</span>
+                </a>
+                <div class="page-title" id="pageTitle">TT-00001 --- 临床研究患者标签</div>
+                <div class="header-actions">
+                    <button class="btn btn-primary" onclick="goToScreeningRules()">筛选规则</button>
+                    <button class="btn btn-primary" onclick="downloadConfig()">下载配置文件</button>
+                </div>
+            </div>
+
+            <div class="content-body">
+                <!-- 入组标准面板 -->
+                <div class="criteria-panel">
+                    <div class="panel-title">入组标准</div>
+                    <div class="panel-content">
+                        <ol>
+                            <li>肝细胞癌</li>
+                        </ol>
+                    </div>
+                    <div class="watermark">minwei</div>
+                </div>
+
+                <!-- 排除标准面板 -->
+                <div class="criteria-panel">
+                    <div class="panel-title">排除标准</div>
+                    <div class="panel-content">
+                        <ol>
+                            <li></li>
+                        </ol>
+                    </div>
+                    <div class="watermark">minwei</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <div class="footer">
+        ©2020 北京惠每云科技有限公司
+    </div>
+
+    <script>
+        // 从URL参数获取项目信息
+        const urlParams = new URLSearchParams(window.location.search);
+        const projectId = urlParams.get('projectId') || 'TT-00001';
+        const projectName = urlParams.get('projectName') || '临床研究患者标签';
+
+        // 更新页面标题
+        document.getElementById('pageTitle').textContent = `${projectId} --- ${projectName}`;
+
+        // 获取规则数据并填充
+        const rulesParam = urlParams.get('rules');
+        if (rulesParam) {
+            try {
+                const rules = JSON.parse(decodeURIComponent(rulesParam));
+                fillCriteriaPanels(rules);
+            } catch (e) {
+                console.error('解析规则数据失败:', e);
+            }
+        }
+
+        // 填充标准面板
+        function fillCriteriaPanels(rules) {
+            const includeCriteria = [];
+            const excludeCriteria = [];
+
+            rules.forEach(rule => {
+                if (rule.type === 'include') {
+                    includeCriteria.push(rule.condition);
+                } else if (rule.type === 'exclude') {
+                    excludeCriteria.push(rule.condition);
+                }
+            });
+
+            // 填充入组标准（纳入条件）
+            const includePanel = document.querySelector('.criteria-panel:first-child .panel-content ol');
+            if (includePanel) {
+                includePanel.innerHTML = '';
+                includeCriteria.forEach((condition, index) => {
+                    const li = document.createElement('li');
+                    li.textContent = condition;
+                    includePanel.appendChild(li);
+                });
+            }
+
+            // 填充排除标准
+            const excludePanel = document.querySelector('.criteria-panel:last-child .panel-content ol');
+            if (excludePanel) {
+                excludePanel.innerHTML = '';
+                excludeCriteria.forEach((condition, index) => {
+                    const li = document.createElement('li');
+                    li.textContent = condition;
+                    excludePanel.appendChild(li);
+                });
+            }
+        }
+
+        // 跳转到筛选规则页面
+        function goToScreeningRules() {
+            window.location.href = `screening-rules.html?projectId=${projectId}&projectName=${encodeURIComponent(projectName)}`;
+        }
+
+        // 下载配置文件
+        function downloadConfig() {
+            // 收集当前页面的数据
+            const includeCriteria = [];
+            const excludeCriteria = [];
+            
+            const includePanel = document.querySelector('.criteria-panel:first-child .panel-content ol');
+            if (includePanel) {
+                const items = includePanel.querySelectorAll('li');
+                items.forEach(item => {
+                    includeCriteria.push(item.textContent);
+                });
+            }
+
+            const excludePanel = document.querySelector('.criteria-panel:last-child .panel-content ol');
+            if (excludePanel) {
+                const items = excludePanel.querySelectorAll('li');
+                items.forEach(item => {
+                    excludeCriteria.push(item.textContent);
+                });
+            }
+
+            // 创建配置文件对象
+            const configData = {
+                projectId: projectId,
+                projectName: projectName,
+                timestamp: new Date().toISOString(),
+                inclusionCriteria: includeCriteria,
+                exclusionCriteria: excludeCriteria
+            };
+
+            // 将配置数据转换为JSON字符串
+            const jsonString = JSON.stringify(configData, null, 2);
+            
+            // 使用Base64编码作为简单的加密
+            const encryptedData = btoa(unescape(encodeURIComponent(jsonString)));
+            
+            // 创建加密后的配置文件内容（添加标识头）
+            const encryptedContent = `ENCRYPTED_CONFIG_V1\n${encryptedData}`;
+
+            // 创建Blob对象
+            const blob = new Blob([encryptedContent], { type: 'text/plain;charset=utf-8' });
+            
+            // 创建下载链接
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `${projectId}_config.enc`;
+            
+            // 触发下载
+            document.body.appendChild(link);
+            link.click();
+            
+            // 清理
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
