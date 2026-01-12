@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mayson | 临床试验平台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f0f2f5;
+            overflow-x: hidden;
+        }
+
+        /* 头部导航栏 */
+        .header {
+            background-color: #1890ff;
+            color: white;
+            padding: 0 24px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 16px;
+        }
+
+        .header-left .divider {
+            width: 1px;
+            height: 20px;
+            background-color: rgba(255,255,255,0.3);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 14px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* 搜索筛选栏 */
+        .search-bar {
+            background: white;
+            padding: 16px 24px;
+            margin: 16px 24px;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .search-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .search-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .search-item label {
+            font-size: 14px;
+            color: rgba(0,0,0,0.85);
+            white-space: nowrap;
+        }
+
+        .search-input {
+            padding: 4px 11px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            height: 32px;
+            width: 150px;
+        }
+
+        .search-select {
+            padding: 4px 11px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            height: 32px;
+            width: 150px;
+            background: white;
+        }
+
+        .search-actions {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .btn {
+            padding: 4px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            height: 32px;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background-color: #1890ff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #40a9ff;
+        }
+
+        .btn-default {
+            background-color: white;
+            color: rgba(0,0,0,0.65);
+            border: 1px solid #d9d9d9;
+        }
+
+        .btn-default:hover {
+            color: #1890ff;
+            border-color: #1890ff;
+        }
+
+        .btn-success {
+            background-color: #52c41a;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #73d13d;
+        }
+
+        /* 项目列表 */
+        .project-list {
+            margin: 0 24px 24px;
+        }
+
+        .project-card {
+            background: white;
+            padding: 20px 24px;
+            margin-bottom: 16px;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .project-card.new-project {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .project-left {
+            flex: 1;
+        }
+
+        .project-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: rgba(0,0,0,0.85);
+            margin-bottom: 12px;
+        }
+
+        .project-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+            font-size: 14px;
+            color: rgba(0,0,0,0.65);
+        }
+
+        .project-info-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .project-info-item strong {
+            color: rgba(0,0,0,0.85);
+            font-weight: 500;
+        }
+
+        .link-text {
+            color: #1890ff;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .link-text:hover {
+            text-decoration: underline;
+        }
+
+        .project-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .status-badge {
+            position: relative;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            background-color: #e6f7ff;
+            color: #1890ff;
+            border: 1px solid #91d5ff;
+        }
+
+        .status-badge .notification {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            width: 8px;
+            height: 8px;
+            background-color: #ff4d4f;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+
+        /* 模态框样式 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.45);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 4px;
+            width: 520px;
+            max-width: 90vw;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .modal-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .modal-footer {
+            padding: 10px 16px;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: rgba(0,0,0,0.85);
+            font-size: 14px;
+        }
+
+        .form-label .required {
+            color: #ff4d4f;
+            margin-right: 4px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 4px 11px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            height: 32px;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #40a9ff;
+            box-shadow: 0 0 0 2px rgba(24,144,255,0.2);
+        }
+    </style>
+</head>
+<body>
+    <!-- 头部导航 -->
+    <div class="header">
+        <div class="header-left">
+            <span>Mayson</span>
+            <span class="divider"></span>
+            <span>临床试验平台</span>
+        </div>
+        <div class="header-right">
+            <span>科研项目</span>
+            <div class="user-info">
+                <span>Hi, fengxin</span>
+                <span>👤</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 搜索筛选栏 -->
+    <div class="search-bar">
+        <div class="search-row">
+            <div class="search-item">
+                <label>编号</label>
+                <input type="text" class="search-input" placeholder="请输入编号">
+            </div>
+            <div class="search-item">
+                <label>项目</label>
+                <select class="search-select">
+                    <option>请选择</option>
+                </select>
+            </div>
+            <div class="search-item">
+                <label>方案</label>
+                <select class="search-select">
+                    <option>请选择</option>
+                </select>
+            </div>
+            <div class="search-item">
+                <label>登记</label>
+                <select class="search-select">
+                    <option>请选择</option>
+                </select>
+            </div>
+            <div class="search-item">
+                <label>项目名称</label>
+                <input type="text" class="search-input" placeholder="输入项目名称">
+            </div>
+            <div class="search-item">
+                <label>所有者</label>
+                <select class="search-select">
+                    <option>请选择</option>
+                </select>
+            </div>
+            <div class="search-item">
+                <label>筛选</label>
+                <select class="search-select">
+                    <option>请选择</option>
+                </select>
+            </div>
+            <div class="search-actions">
+                <button class="btn btn-primary">搜索</button>
+                <button class="btn btn-default">重置</button>
+                <button class="btn btn-primary" onclick="openNewProjectModal()">新建项目</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 项目列表 -->
+    <div class="project-list" id="projectList">
+        <!-- 项目卡片1 -->
+        <div class="project-card">
+            <div class="project-left">
+                <div class="project-title">临床研究患者标签</div>
+                <div class="project-info">
+                    <div class="project-info-item">
+                        <strong>项目编号:</strong> TT-00001
+                    </div>
+                    <div class="project-info-item">
+                        <strong>PI:</strong> macwei01
+                    </div>
+                    <div class="project-info-item">
+                        <strong>参与者:</strong> <a href="#" class="link-text">查看</a>
+                    </div>
+                    <div class="project-info-item">
+                        <strong>试验方案:</strong> <a href="#" class="link-text" onclick="viewProtocol('TT-00001'); return false;">查看</a>
+                    </div>
+                    <div class="project-info-item">
+                        <strong>受试者:</strong> 0
+                    </div>
+                    <div class="project-info-item">
+                        <strong>统计报表:</strong> <a href="#" class="link-text">查看</a>
+                    </div>
+                    <div class="project-info-item">
+                        <strong>科室:</strong> 产科
+                    </div>
+                </div>
+            </div>
+            <div class="project-right">
+                <div class="status-badge">
+                    等待受试者
+                    <span class="notification"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 项目卡片2 -->
+        <div class="project-card">
+            <div class="project-left">
+                <div class="project-title">JS203 在复发难治B细胞淋巴瘤患者中的I期临床研究</div>
+                <div class="project-info">
+                    <div class="project-info-item">
+                        <strong>项目编号:</strong> CT20222130
+                    </div>
+                    <div class="project-info-item">
+                        <strong>PI:</strong> macwei01
+                    </div>
+                    <div class="project-info-item">
+                        <strong>参与者:</strong> <a href="#" class="link-text">查看</a>
+                    </div>
+                    <div class="project-info-item">
+                        <strong>试验方案:</strong> <a href="#" class="link-text" onclick="viewProtocol('CT20222130'); return false;">查看</a>
+                    </div>
+                    <div class="project-info-item">
+                        <strong>受试者:</strong> 0
+                    </div>
+                    <div class="project-info-item">
+                        <strong>统计报表:</strong> <a href="#" class="link-text">查看</a>
+                    </div>
+                    <div class="project-info-item">
+                        <strong>科室:</strong> 产科
+                    </div>
+                </div>
+            </div>
+            <div class="project-right">
+                <div class="status-badge">
+                    等待受试者
+                    <span class="notification"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新建项目模态框 -->
+    <div id="newProjectModal" class="modal-overlay" onclick="if(event.target === this) closeModal()">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">新增项目</div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">
+                        <span class="required">*</span>项目名称
+                    </label>
+                    <input type="text" class="form-input" id="projectName" value="SLE临床研究" placeholder="请输入项目名称">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">
+                        <span class="required">*</span>项目ID
+                    </label>
+                    <input type="text" class="form-input" id="projectId" value="20251217720046" placeholder="请输入项目ID">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">
+                        <span class="required">*</span>医院
+                    </label>
+                    <input type="text" class="form-input" id="hospital" value="北京大学附属肿瘤医院" placeholder="请输入医院名称">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="closeModal()">取消</button>
+                <button class="btn btn-success" onclick="confirmNewProject()">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 打开新建项目模态框
+        function openNewProjectModal() {
+            document.getElementById('newProjectModal').classList.add('show');
+        }
+
+        // 关闭模态框
+        function closeModal() {
+            document.getElementById('newProjectModal').classList.remove('show');
+        }
+
+        // 确认新建项目
+        function confirmNewProject() {
+            const projectName = document.getElementById('projectName').value;
+            const projectId = document.getElementById('projectId').value;
+            const hospital = document.getElementById('hospital').value;
+
+            // 关闭模态框
+            closeModal();
+
+            // 延迟一下，让模态框关闭动画完成
+            setTimeout(() => {
+                // 创建新项目卡片
+                const projectList = document.getElementById('projectList');
+                const newProjectCard = document.createElement('div');
+                newProjectCard.className = 'project-card new-project';
+                newProjectCard.innerHTML = `
+                    <div class="project-left">
+                        <div class="project-title">${projectName}</div>
+                        <div class="project-info">
+                            <div class="project-info-item">
+                                <strong>项目编号:</strong> ${projectId}
+                            </div>
+                            <div class="project-info-item">
+                                <strong>PI:</strong> macwei01
+                            </div>
+                            <div class="project-info-item">
+                                <strong>参与者:</strong> <a href="#" class="link-text">查看</a>
+                            </div>
+                            <div class="project-info-item">
+                                <strong>试验方案:</strong> <a href="#" class="link-text" onclick="viewProtocol('${projectId}'); return false;">查看</a>
+                            </div>
+                            <div class="project-info-item">
+                                <strong>受试者:</strong> 0
+                            </div>
+                            <div class="project-info-item">
+                                <strong>统计报表:</strong> <a href="#" class="link-text">查看</a>
+                            </div>
+                            <div class="project-info-item">
+                                <strong>科室:</strong> 产科
+                            </div>
+                        </div>
+                    </div>
+                    <div class="project-right">
+                        <div class="status-badge">
+                            等待受试者
+                            <span class="notification"></span>
+                        </div>
+                    </div>
+                `;
+
+                // 将新项目插入到列表顶部
+                projectList.insertBefore(newProjectCard, projectList.firstChild);
+            }, 300);
+        }
+
+        // 查看试验方案
+        function viewProtocol(projectId) {
+            // 根据项目ID获取项目名称
+            const projectNames = {
+                'TT-00001': '临床研究患者标签',
+                'CT20222130': 'JS203 在复发难治B细胞淋巴瘤患者中的I期临床研究',
+                '20251217720046': 'SLE临床研究'
+            };
+            const projectName = projectNames[projectId] || '临床研究项目';
+            
+            // 跳转到试验方案页面
+            window.location.href = `protocol-view.html?projectId=${projectId}&projectName=${encodeURIComponent(projectName)}`;
+        }
+    </script>
+</body>
+</html>
